@@ -38,7 +38,9 @@ public class Indexer {
     public void index(String indexPath, String filePath) throws IOException {
         indexDirectory = FSDirectory.open(Paths.get(indexPath));
 
-        config = new IndexWriterConfig(new EnglishAnalyzer(EnglishAnalyzer.ENGLISH_STOP_WORDS_SET));
+        config = new IndexWriterConfig(
+                new EnglishAnalyzer(
+                        EnglishAnalyzer.ENGLISH_STOP_WORDS_SET));
 
         indexWriter = new IndexWriter(indexDirectory, config);
 
@@ -59,15 +61,15 @@ public class Indexer {
                     String fieldValue = jsonParser.getText(); // Assuming all values are strings
                     if (fieldName.equalsIgnoreCase("text")) {
                         luceneDocument.add(new TextField(fieldName, fieldValue, Field.Store.YES));
-                    } else {
+                    } else if (fieldName.equalsIgnoreCase("review_id") || fieldName.equalsIgnoreCase("business_id")){
                         luceneDocument.add(new StringField(fieldName, fieldValue, Field.Store.YES));
                     }
                     counter++;
-                    if (counter >= 100000) {
+                    if (counter >= 1000000) {
                         indexWriter.addDocument(luceneDocument);
                         luceneDocument = new Document(); // clear the document
                         counter = 0; // reset the counter
-                        System.out.println(++numOfCounter * 100000);
+                        System.out.println(++numOfCounter * 1000000);
                     }
                 }
             }
@@ -88,7 +90,7 @@ public class Indexer {
             } else {
                 indexWriter.addDocument(luceneDocument);
                 Instant finish = Instant.now();
-                System.out.println("Total number of records processed: " + (numOfCounter * 100000 + counter) + "\n"
+                System.out.println("Total number of fields processed: " + (numOfCounter * 1000000 + counter) + "\n"
                         + "Total time elapsed: " + Duration.between(start, finish).toMillis());
                 return false;
             }

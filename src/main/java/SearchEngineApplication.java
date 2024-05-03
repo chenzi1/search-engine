@@ -22,6 +22,13 @@ public class SearchEngineApplication {
                     throw new RuntimeException(e);
                 }
                 break;
+            case "searchid":
+                Searcher searcherId = new Searcher();
+                try {
+                    searcherId.searchById(args[1], args[2]);
+                } catch (ParseException | IOException e) {
+                    throw new RuntimeException(e);
+                }
         }
     }
 }
