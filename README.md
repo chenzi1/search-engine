@@ -4,7 +4,7 @@ This project is created as part of the assignment for MH6301 Information Retriev
 
 Build
 ```commandline
-mvn clean install
+mvn clean package
 ```
 
 Run
