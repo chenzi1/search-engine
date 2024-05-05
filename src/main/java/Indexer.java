@@ -64,13 +64,6 @@ public class Indexer {
                     } else if (fieldName.equalsIgnoreCase("review_id") || fieldName.equalsIgnoreCase("business_id")){
                         luceneDocument.add(new StringField(fieldName, fieldValue, Field.Store.YES));
                     }
-                    counter++;
-                    if (counter >= 1000000) {
-                        indexWriter.addDocument(luceneDocument);
-                        luceneDocument = new Document(); // clear the document
-                        counter = 0; // reset the counter
-                        System.out.println(++numOfCounter * 1000000);
-                    }
                 }
             }
             jsonParser.close();
@@ -84,14 +77,23 @@ public class Indexer {
 
     private boolean shouldProcess(JsonParser jsonParser) throws IOException {
         if (jsonParser.nextToken() == JsonToken.END_OBJECT) {
+            counter++;
+            if (counter == 10000) {
+                indexWriter.addDocument(luceneDocument);
+                luceneDocument = new Document(); // clear the document
+                counter = 0; // reset the counter
+                System.out.println(++numOfCounter * 100000);
+            }
             if (jsonParser.nextToken() == JsonToken.START_OBJECT) {
                 jsonParser.nextToken();
                 return true;
             } else {
                 indexWriter.addDocument(luceneDocument);
                 Instant finish = Instant.now();
-                System.out.println("Total number of fields processed: " + (numOfCounter * 1000000 + counter) + "\n"
-                        + "Total time elapsed: " + Duration.between(start, finish).toMillis());
+                System.out.println("Total number of fields processed: "
+                        + (numOfCounter * 100000 + counter) + "\n"
+                        + "Total time elapsed: "
+                        + Duration.between(start, finish).toMillis());
                 return false;
             }
         } else {
